@@ -90,11 +90,6 @@ class JSCam {
 	public static function capture(time:Number):Boolean {
 
 		if (null != camera) {
-
-			if (null != buffer) {
-				return false;
-			}
-
 			buffer = new BitmapData(Stage.width, Stage.height);
 			ExternalInterface.call('webcam.debug', "notify", "Capturing started.");
 
@@ -174,33 +169,8 @@ class JSCam {
 				}
 
 			} else if ("save" == mode) {
-
-				if (file) {
-
-					var e = new JPGEncoder(quality);
-
-					var sal = {};
-					sal.sendAndLoad = XML.prototype.sendAndLoad;
-					sal.contentType = "image/jpeg";
-					sal.toString = function() {
-						return e.encode(JSCam.buffer);
-					}
-
-					var doc = new XML();
-					doc.onLoad = function(success) {
-						ExternalInterface.call("webcam.onSave", "done");
-					}
-
-					sal.sendAndLoad(file, doc);
-/*
-					ExternalInterface.call('webcam.debug', "error", "No save mode compiled in.");
-					return false;
-*/
-				} else {
-					ExternalInterface.call('webcam.debug', "error", "No file name specified.");
-					return false;
-				}
-
+                var e = new JPGEncoder(quality);
+                return e.encode(JSCam.buffer);
 			} else {
 				ExternalInterface.call('webcam.debug', "error", "Unsupported storage mode.");
 			}
