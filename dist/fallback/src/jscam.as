@@ -68,7 +68,7 @@ class JSCam {
 			}
 
 			camera.setQuality(0, 100);
-			camera.setMode(Stage.width, Stage.height, 24, false);
+			camera.setMode(1280, 960, 24, false);
 
 			ExternalInterface.addCallback("capture", null, capture);
 
@@ -90,7 +90,8 @@ class JSCam {
 	public static function capture(time:Number):Boolean {
 
 		if (null != camera) {
-			buffer = new BitmapData(Stage.width, Stage.height);
+            
+			buffer = new BitmapData(camera.width, camera.height);
 			ExternalInterface.call('webcam.debug', "notify", "Capturing started.");
 
 			if ("stream" == mode) {
