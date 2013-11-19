@@ -40,8 +40,8 @@ package {
 			smoothing    : false,     // Boolean
 			deblocking   : 0,         // Number
 			wrapper      : 'webcam',  // JS wrapper name
-			width 		 : 320,         // embedded object width
-			height 		 : 240,         // embedded object height
+			width 		 : 640,         // embedded object width
+			height 		 : 480,         // embedded object height
 			shutterSound : '',        // optional sound file to load
 			mode         : "callback"
 		}
@@ -57,9 +57,9 @@ package {
 		
 		public function webcam():void {
 			flash.system.Security.allowDomain("*");
-			stage.scaleMode = StageScaleMode.EXACT_FIT;
+			stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.quality   = StageQuality.BEST;
-			stage.align     = ''; // centre
+			stage.align     = StageAlign.TOP_LEFT; // centre
 			settings        = merge(settings, this.loaderInfo.parameters);
 			cam = Camera.getCamera();
 			
@@ -95,7 +95,7 @@ package {
 			cam.addEventListener(StatusEvent.STATUS, cameraStatusListener);
 			cam.setMode(1280, 960, settings.framerate);
 			cam.setQuality(settings.bandwidth, settings.quality);
-			vid = new Video(cam.width, cam.height);
+			vid = new Video(settings.width, settings.height);
 			vid.smoothing = settings.smoothing;
 			vid.deblocking = settings.deblocking;
 			vid.attachCamera(cam);
@@ -104,7 +104,6 @@ package {
 				vid.x = vid.width + vid.x;
 			}
 			stage.addChild(vid);
-			
 		}
 		
 		private function cameraStatusListener(evt:StatusEvent):void {
@@ -176,38 +175,21 @@ package {
 		public function capture(time:Number):Boolean {
 			var resMode:String = 'window';
 			var c:Object = getResolution()['camera'];
-			var r:Object = getResolution()[resMode];
-			var m:Matrix = new Matrix();
-			var f:Number = !!settings.mirror ? -1 : 1;
-			
 			
 			ExternalInterface.call('webcam.debug', "notify", "start of capture().");
-			
-			
 			if (null != cam) {
 				ExternalInterface.call('webcam.debug', "notify", "cam found");
-				
 				if (null != img) {
 					ExternalInterface.call('webcam.debug', "notify", "img allready there");
 					return false;
 				}
-				ExternalInterface.call('webcam.debug', "notify", r);
-				img = new BitmapData(r.width, r.height);
+				img = new BitmapData(c.width, c.height);
 				ExternalInterface.call('webcam.debug', "notify", "img created");
 				//matrix transformation
-				if(c.width!=r.width || c.height!=r.height){
-					var imgT:BitmapData = new BitmapData(c.width, c.height);
-					m.scale(f * r.width / c.width, r.height / c.height);       
-				} else {
-					m.scale(f * 1, 1);
-				}
-				if(!!settings.mirror) {
-					m.translate(r.width, 0);
-				}
 				ExternalInterface.call('webcam.debug', "notify", "Capturing started.");
 				
 				if ("stream" == settings.mode) {
-					wstream(m);
+					wstream(null);
 					return true;
 				}
 				
@@ -216,9 +198,7 @@ package {
 				} else if (time > 10) {
 					time = 10;
 				}
-				
-				_capture(time + 1, m);
-				
+				_capture(time + 1, null);
 				return true;
 			}
 			else{
@@ -242,17 +222,13 @@ package {
 			}
 		}
 		
-		public function save(file:String):Boolean {
+		public function save(file:String){
 			if ("stream" == settings.mode) {
 				return true;
-				
 			} else if (null != img) {
-				
 				if ("callback" == settings.mode) {
 					ExternalInterface.call('webcam.debug', "notify", img.height);
-					
 					ExternalInterface.call('webcam.debug', "notify", img.width);
-					
 					for (var i = 0; i < img.height; ++i) {
 						
 						var pictrow = "";
@@ -262,37 +238,18 @@ package {
 							pictrow += ";";
 						}
 						triggerEvent("onSave", pictrow);
-						
 					}
-					
 				} else if ("save" == settings.mode) {
-					
-					if (file) {
-						
-						var e = new JPGEncoder(settings.quality);
-						
-						var sal = {};
-						sal.sendAndLoad = XML.prototype.sendAndLoad;
-						sal.contentType = "image/jpeg";
-						sal.toString = function() {
-							return e.encode(img);
-						}
-						
-						var doc = new XML();
-						doc.onLoad = function(success) {
-							triggerEvent("onSave", "done");
-						}
-						
-						sal.sendAndLoad(file, doc);
-						/*
-						ExternalInterface.call('webcam.debug', "error", "No save mode compiled in.");
-						return false;
-						*/
-					} else {
-						ExternalInterface.call('webcam.debug', "error", "No file name specified.");
-						return false;
-					}
-					
+					ExternalInterface.call('console.log', "save");
+                    var e = new JPGEncoder(settings.quality);
+					ExternalInterface.call('console.log', "save");
+                    var data = e.encode(img);
+                    ExternalInterface.call('console.log', data);
+                    img = null;
+					ExternalInterface.call('console.log', data);
+                    var string:String = 'data:image/jpeg;base64,' + Base64.encodeByteArray(data);
+                    return string;
+					ExternalInterface.call('console.log', "save out?");
 				} else {
 					ExternalInterface.call('webcam.debug', "error", "Unsupported storage mode.");
 				}

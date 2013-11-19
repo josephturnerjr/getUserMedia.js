@@ -5,6 +5,8 @@ MXMLC		:= /opt/flex/bin/mxmlc
 
 MTASCSTDLIB := /usr/share/mtasc/std
 
+all: as3
+
 main:
 	$(SWFMILL) -V simple src/jscam.xml jscam.swf
 	$(MTASC) -v -swf jscam.swf -main jscam.as -version 8 -cp src -cp $(MTASCSTDLIB)
@@ -16,4 +18,4 @@ clean:
 as3: as3/webcam.swf
 
 %.swf: %.as
-	$(MXMLC) $<
+	$(MXMLC) -swf-version=18 $< 
