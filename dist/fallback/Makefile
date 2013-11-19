@@ -1,6 +1,7 @@
 
 SWFMILL     := swfmill
 MTASC       := mtasc
+MXMLC		:= /opt/flex/bin/mxmlc
 
 MTASCSTDLIB := /usr/share/mtasc/std
 
@@ -12,3 +13,7 @@ main:
 clean:
 	rm -f jscam.swf
 
+as3: as3/webcam.swf
+
+%.swf: %.as
+	$(MXMLC) $<

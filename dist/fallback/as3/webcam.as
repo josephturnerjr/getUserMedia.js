@@ -93,7 +93,7 @@ package {
 		private function loadCamera(name:String = '0'):void {
 			cam = Camera.getCamera(name);
 			cam.addEventListener(StatusEvent.STATUS, cameraStatusListener);
-			cam.setMode(stage.stageWidth, stage.stageHeight, settings.framerate);
+			cam.setMode(1280, 960, settings.framerate);
 			cam.setQuality(settings.bandwidth, settings.quality);
 			vid = new Video(cam.width, cam.height);
 			vid.smoothing = settings.smoothing;
