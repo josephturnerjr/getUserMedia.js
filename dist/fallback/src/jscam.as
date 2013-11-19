@@ -169,7 +169,18 @@ class JSCam {
 					ExternalInterface.call("webcam.onSave", row);
 				}
 
+			} else if ("imagedata" == mode) {
+                var imagedata = new Array();
+                var rgba;
+				for (var row = 0; row < buffer.height; ++row) {
+					for (var col=0; col < buffer.width; ++col) {
+						rgba = buffer.getPixel32(col, row);
+                        imagedata.push(rgba);
+					}
+				}
+                ExternalInterface.call("webcam.onSave", imagedata);
 			} else if ("save" == mode) {
+                ExternalInterface.call("console.log", "save");
                 var e = new JPGEncoder(quality);
                 return e.encode(JSCam.buffer);
 			} else {
