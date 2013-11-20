@@ -50,7 +50,8 @@ package {
 	
 		private var cam:Camera      = null; 
 		private var cur:String      = '0';  // current cam id
-		private var vid:Video       = null;
+		private var vid:Video       = null; // Displayed on stage
+		private var camvid:Video       = null; // Camera resolution for capture
 		private var img:BitmapData  = null;
 		private var b64:String      = '';   // last saved image
 		private var snd:Sound       = null;
@@ -64,13 +65,13 @@ package {
 			cam = Camera.getCamera();
 			
 			if(cam != null) {
-				if(cam.muted) Security.showSettings(SecurityPanel.PRIVACY);
+				if(cam.muted){
+                    Security.showSettings(SecurityPanel.PRIVACY);
+                }else{
+                    triggerEvent('swfReady');
+                }
 				if(ExternalInterface.available){
 					loadCamera();
-					/*var timer:Timer = new Timer(250);
-					timer.addEventListener(TimerEvent.TIMER, clientReadyListener);
-					timer.start();*/
-					
 					ExternalInterface.addCallback('capture'      ,	capture	);
 					ExternalInterface.addCallback('save'         , save         );
 					ExternalInterface.addCallback('play'         , playCam      );
@@ -104,11 +105,18 @@ package {
 				vid.x = vid.width + vid.x;
 			}
 			stage.addChild(vid);
+            // Hidden video for camera capture
+			camvid = new Video(cam.width, cam.height);
+			camvid.smoothing = settings.smoothing;
+			camvid.deblocking = settings.deblocking;
+			camvid.attachCamera(cam);
 		}
 		
 		private function cameraStatusListener(evt:StatusEvent):void {
-			if(!cam.muted) triggerEvent('swfReady');
-			else error('CAMDISABLED');
+			if(!cam.muted)
+                triggerEvent('swfReady');
+			else
+                error('CAMDISABLED');
 		}
 		
 		private function triggerEvent(func:String, param:Object = null):Boolean {
@@ -213,7 +221,7 @@ package {
 			}
 			
 			if (time == 0) {
-				img.draw(vid, mtx); //doesnt find vid
+				img.draw(camvid, mtx); //doesnt find vid
 				ExternalInterface.call('webcam.onCapture');
 				ExternalInterface.call('webcam.debug', "notify", "Capturing finished.");
 			} else {
@@ -240,16 +248,11 @@ package {
 						triggerEvent("onSave", pictrow);
 					}
 				} else if ("save" == settings.mode) {
-					ExternalInterface.call('console.log', "save");
                     var e:JPGEncoder = new JPGEncoder(settings.quality);
-					ExternalInterface.call('console.log', "save");
                     var data:ByteArray = e.encode(img);
-                    ExternalInterface.call('console.log', data);
                     img = null;
-					ExternalInterface.call('console.log', data);
                     var string:String = 'data:image/jpeg;base64,' + Base64.encodeByteArray(data);
                     return string;
-					ExternalInterface.call('console.log', "save out?");
 				} else {
 					ExternalInterface.call('webcam.debug', "error", "Unsupported storage mode.");
 				}
