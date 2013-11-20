@@ -207,7 +207,7 @@ package {
 			return false;
 		}
 		
-		private function _capture(time:Number, mtx):void {
+		private function _capture(time:Number, mtx:Matrix):void {
 			if (null != interval) {
 				clearInterval(interval);
 			}
@@ -222,17 +222,17 @@ package {
 			}
 		}
 		
-		public function save(file:String){
+		public function save(file:String):Object{
 			if ("stream" == settings.mode) {
 				return true;
 			} else if (null != img) {
 				if ("callback" == settings.mode) {
 					ExternalInterface.call('webcam.debug', "notify", img.height);
 					ExternalInterface.call('webcam.debug', "notify", img.width);
-					for (var i = 0; i < img.height; ++i) {
+					for (var i:Number = 0; i < img.height; ++i) {
 						
-						var pictrow = "";
-						for(var j = 0; j < img.width; j++)
+						var pictrow:String = "";
+						for(var j:Number = 0; j < img.width; j++)
 						{
 							pictrow += img.getPixel(j, i);
 							pictrow += ";";
@@ -241,9 +241,9 @@ package {
 					}
 				} else if ("save" == settings.mode) {
 					ExternalInterface.call('console.log', "save");
-                    var e = new JPGEncoder(settings.quality);
+                    var e:JPGEncoder = new JPGEncoder(settings.quality);
 					ExternalInterface.call('console.log', "save");
-                    var data = e.encode(img);
+                    var data:ByteArray = e.encode(img);
                     ExternalInterface.call('console.log', data);
                     img = null;
 					ExternalInterface.call('console.log', data);
@@ -283,7 +283,7 @@ package {
 			*/
 		}
 		
-		public function wstream(mtx):void{
+		public function wstream(mtx:Matrix):void{
 			var pictrow:String = "";
 			
 			if (null != stream) {
@@ -292,9 +292,9 @@ package {
 			
 			img.draw(vid, mtx);
 			
-			for(var i = 0; i < img.height; i++)
+			for(var i:Number = 0; i < img.height; i++)
 			{
-				for(var j = 0; j < img.width; j++)
+				for(var j:Number = 0; j < img.width; j++)
 				{
 					pictrow += img.getPixel(j, i);
 					pictrow += ";";
