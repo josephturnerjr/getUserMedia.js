@@ -96,7 +96,9 @@ package {
 			cam.addEventListener(StatusEvent.STATUS, cameraStatusListener);
 			cam.setMode(1280, 960, settings.framerate);
 			cam.setQuality(settings.bandwidth, settings.quality);
-			vid = new Video(settings.width, settings.height);
+			vid = new Video(stage.stageWidth, stage.stageHeight);
+			ExternalInterface.call("console.log", vid.width, vid.height);
+            
 			vid.smoothing = settings.smoothing;
 			vid.deblocking = settings.deblocking;
 			vid.attachCamera(cam);
