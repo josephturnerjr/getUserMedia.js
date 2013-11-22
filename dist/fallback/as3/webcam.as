@@ -189,17 +189,12 @@ package {
 					return false;
 				}
 				img = new BitmapData(c.width, c.height);
-				
 				if ("stream" == settings.mode) {
 					wstream(null);
 					return true;
 				}
-				
 				_capture();
 				return true;
-			}
-			else{
-				ExternalInterface.call('webcam.debug', "notify", "cam not initialized");
 			}
 			return false;
 		}
@@ -208,19 +203,13 @@ package {
 			if (null != interval) {
 				clearInterval(interval);
 			}
-			
             img.draw(camvid);
-            ExternalInterface.call('webcam.onCapture');
-            ExternalInterface.call('webcam.debug', "notify", "Capturing finished.");
 		}
-		
 		public function save(file:String):Object{
 			if ("stream" == settings.mode) {
 				return true;
 			} else if (null != img) {
 				if ("callback" == settings.mode) {
-					ExternalInterface.call('webcam.debug', "notify", img.height);
-					ExternalInterface.call('webcam.debug', "notify", img.width);
 					for (var i:Number = 0; i < img.height; ++i) {
 						
 						var pictrow:String = "";
