@@ -72,7 +72,7 @@ package {
                 }
 				if(ExternalInterface.available){
 					loadCamera();
-					ExternalInterface.addCallback('capture'      ,	capture	);
+					ExternalInterface.addCallback('capture'      , capture	);
 					ExternalInterface.addCallback('save'         , save         );
 					ExternalInterface.addCallback('play'         , playCam      );
 					ExternalInterface.addCallback('pause'        , pauseCam     );
@@ -180,33 +180,22 @@ package {
 			return true;
 		}
 		
-		public function capture(time:Number):Boolean {
+		public function capture():Boolean {
 			var resMode:String = 'window';
 			var c:Object = getResolution()['camera'];
 			
-			ExternalInterface.call('webcam.debug', "notify", "start of capture().");
 			if (null != cam) {
-				ExternalInterface.call('webcam.debug', "notify", "cam found");
 				if (null != img) {
-					ExternalInterface.call('webcam.debug', "notify", "img allready there");
 					return false;
 				}
 				img = new BitmapData(c.width, c.height);
-				ExternalInterface.call('webcam.debug', "notify", "img created");
-				//matrix transformation
-				ExternalInterface.call('webcam.debug', "notify", "Capturing started.");
 				
 				if ("stream" == settings.mode) {
 					wstream(null);
 					return true;
 				}
 				
-				if (!time) {
-					time = -1;
-				} else if (time > 10) {
-					time = 10;
-				}
-				_capture(time + 1, null);
+				_capture();
 				return true;
 			}
 			else{
@@ -215,19 +204,14 @@ package {
 			return false;
 		}
 		
-		private function _capture(time:Number, mtx:Matrix):void {
+		private function _capture():void {
 			if (null != interval) {
 				clearInterval(interval);
 			}
 			
-			if (time == 0) {
-				img.draw(camvid, mtx); //doesnt find vid
-				ExternalInterface.call('webcam.onCapture');
-				ExternalInterface.call('webcam.debug', "notify", "Capturing finished.");
-			} else {
-				ExternalInterface.call('webcam.onTick', time - 1);
-				interval = setInterval(_capture, 1000, time - 1);
-			}
+            img.draw(camvid);
+            ExternalInterface.call('webcam.onCapture');
+            ExternalInterface.call('webcam.debug', "notify", "Capturing finished.");
 		}
 		
 		public function save(file:String):Object{
